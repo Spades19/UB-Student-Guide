@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UB Guide</title>
+    <link rel="stylesheet" href="style-login.css">
+    <style>
+        /* Small styling buffer to make the peek text line up beautifully */
+        .peek-password {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px !important;
+            font-weight: normal !important;
+            opacity: 0.8;
+            margin-top: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .peek-password input {
+            width: auto !important;
+            margin: 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-tabs">
+                <button id="loginTab" class="tab-btn active">Login</button>
+                <button id="registerTab" class="tab-btn">Register</button>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <h2>Welcome Back</h2>
+                <p>Log in to access your UB Guide history.</p>
+
+                <div class="form-group">
+                    <label for="loginEmail">UB Matricule or Email</label>
+                    <input type="email" id="loginEmail" placeholder="e.g., student@ubuea.cm" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                    <!-- Show Password Checkbox -->
+                    <label class="peek-password">
+                        <input type="checkbox" onclick="togglePasswordVisibility('loginPassword')"> Show Password
+                    </label>
+                </div>
+
+                <button type="submit" class="auth-submit-btn">Sign In</button>
+            </form>
+
+            <form id="registerForm" class="auth-form hidden">
+                <h2>Create Account</h2>
+                <p>Join UB Guide AI to get personalized student info.</p>
+
+                <div class="form-group">
+                    <label for="regName">Full Name</label>
+                    <input type="text" id="regName" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="regEmail">Email Address</label>
+                    <input type="email" id="regEmail" placeholder="student@ubuea.cm" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" placeholder="Minimum 6 characters" required>
+                    <!-- Show Password Checkbox -->
+                    <label class="peek-password">
+                        <input type="checkbox" onclick="togglePasswordVisibility('regPassword')"> Show Password
+                    </label>
+                </div>
+
+                <button type="submit" class="auth-submit-btn">Register</button>
+            </form>
+        </div>
+    </div>
+    <script src="script-login.js?v=1.0.1"></script>
+</body>
+
+</html>

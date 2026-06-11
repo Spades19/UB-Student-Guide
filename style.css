@@ -1,0 +1,259 @@
+#max {
+    border-radius: 55%;
+    padding: auto;
+}
+
+/* 1. DEFINE THEME VARIABLES */
+:root {
+    --bg-sidebar: #2c3e50;
+    --text-sidebar: #ecf0f1;
+    --hover-sidebar: #34495e;
+
+    --bg-main: #f4f6f7;
+    --text-main: #2c3e50;
+
+    --bg-input: #ffffff;
+    --border-input: #e0e0e0;
+    --text-input: #1f2937;
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+    --bg-sidebar: #111827;
+    --text-sidebar: #f9fafb;
+    --hover-sidebar: #1f2937;
+
+    --bg-main: #1f2937;
+    --text-main: #f9fafb;
+
+    --bg-input: #1e1e24;
+    --border-input: #374151;
+    --text-input: #f9fafb;
+}
+
+/* 2. APPLY VARIABLES TO RESETS AND LAYOUT */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    /* Smoothly animate background color changes */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar styling using variables */
+.sidebar {
+    width: 250px;
+    background-color: var(--bg-sidebar);
+    color: var(--text-sidebar);
+    padding: 20px;
+    position: relative;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    /* Allows us to push the theme button to the bottom */
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    color: var(--text-sidebar);
+    font-size: 24px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    align-self: flex-start;
+}
+
+.sidebar h2 {
+    margin-bottom: 20px;
+    white-space: nowrap;
+}
+
+.sidebar ul {
+    list-style: none;
+    flex-grow: 1;
+    /* Pushes everything below the list down */
+}
+
+.sidebar ul li a {
+    color: var(--text-sidebar);
+    text-decoration: none;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.sidebar ul li a:hover {
+    background-color: var(--hover-sidebar);
+}
+
+/* Theme Button Styling */
+.theme-btn {
+    background-color: var(--hover-sidebar);
+    color: var(--text-sidebar);
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: auto;
+    /* Aligns button to the bottom */
+}
+
+/* Main Content styling using variables */
+.main-content {
+    flex: 1;
+    padding: 40px;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+}
+
+/* Collapsed State from previous step */
+.sidebar.collapsed {
+    width: 80px;
+    padding: 20px 15px;
+}
+
+.sidebar.collapsed .sidebar-title,
+.sidebar.collapsed ul li a span,
+.sidebar.collapsed .theme-btn {
+    display: none;
+    /* Hides theme button text when collapsed (or you can leave just the emoji) */
+}
+
+/* Container to push the input down */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 80px);
+    justify-content: flex-end;
+    /* Pushes input to the bottom */
+    max-width: 800px;
+    /* Limits width just like Gemini */
+    margin: 0 auto;
+}
+
+/* The Gemini Input Bar */
+.input-wrapper {
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-input);
+    border-radius: 28px;
+    /* High rounding for that pill shape */
+    padding: 14px 22px 45px 22px;
+    /* Generous top padding, extra bottom padding for actions */
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* The Textarea inside the container */
+.input-wrapper textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-input);
+    font-size: 16px;
+    line-height: 1.5;
+    resize: none;
+    /* Prevents the user from manually resizing */
+    max-height: 200px;
+    /* Caps the auto-grow height */
+}
+
+/* Container for action buttons positioned inside the wrapper */
+.input-actions {
+    position: absolute;
+    bottom: 12px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    /* Pushes attach to left, send to right */
+    align-items: center;
+}
+
+/* Action items like plus sign / microphone */
+.action-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.action-btn:hover {
+    opacity: 1;
+}
+
+/* Send Button */
+.send-btn {
+    background-color: var(--text-main);
+    color: var(--bg-main);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    /* Perfect circle */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.1s ease;
+}
+
+.send-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Base message style */
+.message {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 15px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+/* User Message (Right side) */
+.message.user-message {
+    background-color: var(--text-main);
+    color: var(--bg-main);
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+    /* Gives it a speech bubble look */
+}
+
+/* Bot Message (Left side) */
+.message.bot-message {
+    background-color: var(--bg-input);
+    color: var(--text-input);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    border: 1px solid var(--border-input);
+}
+
+@media (max-width: 768px) {
+    .wrapper {
+        flex-direction: column;
+        /* Stacks sidebar on top of main content */
+    }
+
+    .sidebar {
+        width: 100%;
+        /* Sidebar takes full width on mobile */
+        height: auto;
+    }
+}

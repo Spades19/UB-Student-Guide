@@ -1,0 +1,485 @@
+/* ==========================================
+   1. UB PORTAL SKIN COLORS & VARIABLES
+   ========================================== */
+:root {
+    /* UB Portal Primary Palette */
+    --ub-blue: #024683;
+    /* Official University of Buea Blue */
+    --ub-blue-hover: #013360;
+    /* Darker tone for active selections/hover */
+    --ub-accent: #0284c7;
+    /* Lighter blue for focus rings/active highlights */
+
+    /* Backgrounds & Canvas Tones */
+    --bg-main: #f3f4f6;
+    /* Light gray background matching portal dashboard */
+    --bg-sidebar: #024683;
+    /* Main portal navigation sidebar color */
+    --text-sidebar: #ffffff;
+    --hover-sidebar: rgba(255, 255, 255, 0.15);
+
+    --bg-card: #ffffff;
+    /* Pure white panels for cards and inputs */
+    --text-main: #1f2937;
+    /* Clean charcoal body text */
+    --border-input: #d1d5db;
+    /* Soft border gray */
+}
+
+/* Deep Slate Dark Mode Palette */
+[data-theme="dark"] {
+    --bg-main: #0f172a;
+    --bg-sidebar: #1e293b;
+    --text-sidebar: #f8fafc;
+    --hover-sidebar: #334155;
+
+    --bg-card: #1e293b;
+    --text-main: #f8fafc;
+    --border-input: #475569;
+}
+
+/* ==========================================
+   2. GLOBAL RESETS & GENERAL LAYOUT
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+}
+
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ==========================================
+   3. COLLAPSIBLE SIDEBAR STYLES
+   ========================================== */
+.sidebar {
+    width: 250px;
+    background-color: var(--bg-sidebar);
+    color: var(--text-sidebar);
+    padding: 20px;
+    position: relative;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    color: var(--text-sidebar);
+    font-size: 24px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    align-self: flex-start;
+}
+
+.sidebar-title {
+    margin-bottom: 20px;
+    white-space: nowrap;
+}
+
+.sidebar ul {
+    list-style: none;
+    flex-grow: 1;
+}
+
+.sidebar ul li a {
+    color: var(--text-sidebar);
+    text-decoration: none;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.sidebar ul li a:hover {
+    background-color: var(--hover-sidebar);
+}
+
+.theme-btn {
+    background-color: var(--hover-sidebar);
+    color: var(--text-sidebar);
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: auto;
+}
+
+/* Sidebar Collapsed State (Triggered by JS) */
+.sidebar.collapsed {
+    width: 80px;
+    padding: 20px 15px;
+}
+
+.sidebar.collapsed .sidebar-title,
+.sidebar.collapsed ul li a span,
+.sidebar.collapsed .theme-btn {
+    display: none;
+}
+
+.sidebar.collapsed .toggle-btn {
+    margin: 0 auto 20px auto;
+}
+
+.sidebar.collapsed ul li a {
+    justify-content: center;
+}
+
+/* ==========================================
+   4. MAIN WORKSPACE CONTENT WINDOW
+   ========================================== */
+.main-content {
+    flex: 1;
+    padding: 40px;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==========================================
+   5. UB STUDENT PORTAL AUTHENTICATION CARD
+   ========================================== */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    padding: 20px 0;
+}
+
+.auth-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-input);
+    width: 100%;
+    max-width: 420px;
+    padding: 35px;
+    border-radius: 8px;
+    /* Classic structural block corners matching the portal */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--border-input);
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-main);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.5;
+    padding: 10px 5px;
+}
+
+.tab-btn.active {
+    opacity: 1;
+    color: var(--ub-blue);
+    border-bottom: 3px solid var(--ub-blue);
+    margin-bottom: -2px;
+    /* Pull tab underline overlay perfectly over layout row line */
+}
+
+.auth-form h2 {
+    color: var(--ub-blue);
+    margin-bottom: 5px;
+    font-size: 24px;
+}
+
+.auth-form p {
+    font-size: 14px;
+    color: var(--text-main);
+    opacity: 0.7;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.form-group input {
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border-input);
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus {
+    border-color: var(--ub-blue);
+}
+
+/* Submission CTA matching official Portal Sign-In mechanics */
+.auth-submit-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--ub-blue);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.auth-submit-btn:hover {
+    background-color: var(--ub-blue-hover);
+}
+
+/* ==========================================
+   6. CHAT WINDOW & GEMINI INPUT FIELD
+   ========================================== */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 120px);
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.message-display {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.message {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 15px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.message.user-message {
+    background-color: var(--ub-blue);
+    color: #ffffff;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+.message.bot-message {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    border: 1px solid var(--border-input);
+}
+
+.input-wrapper {
+    background-color: var(--bg-card);
+    border: 2px solid var(--border-input);
+    border-radius: 12px;
+    padding: 14px 22px 45px 22px;
+    position: relative;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.input-wrapper:focus-within {
+    border-color: var(--ub-accent);
+}
+
+.input-wrapper textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-main);
+    font-size: 16px;
+    line-height: 1.5;
+    resize: none;
+    max-height: 200px;
+}
+
+.input-actions {
+    position: absolute;
+    bottom: 12px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.action-btn:hover {
+    opacity: 1;
+}
+
+.send-btn {
+    background-color: var(--ub-blue);
+    color: #ffffff;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.send-btn:hover {
+    background-color: var(--ub-blue-hover);
+}
+
+/* ==========================================
+   7. UTILITY ENGINE
+   ========================================== */
+.hidden {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .wrapper {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+    }
+
+    .sidebar.collapsed {
+        width: 100%;
+    }
+}
+
+.peek-password {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px !important;
+    /* Slightly smaller text */
+    font-weight: normal !important;
+    opacity: 0.8;
+    margin-top: 5px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.peek-password input {
+    width: auto !important;
+    /* Prevents checkbox from stretching */
+    cursor: pointer;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    color: #ff4d4d;
+    /* Subtle alert red tint */
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 77, 77, 0.1);
+    /* Light red glow effect on hover */
+}
+
+.history-logs-list {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.history-item-block {
+    background: rgba(255, 255, 255, 0.05);
+    /* Soft background block */
+    border-left: 4px solid #007bff;
+    /* Primary tracking bar tint */
+    border-radius: 4px;
+    padding: 12px;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.history-item-block:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(2px);
+}
+
+.history-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    color: #b0b3b8;
+}
+
+.history-speaker {
+    font-weight: 600;
+}
+
+.user-label {
+    color: #4dadff;
+}
+
+.bot-label {
+    color: #28a745;
+}
+
+.history-body-preview {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: #e4e6eb;
+    white-space: pre-wrap;
+    /* Preserve text formatting rules */
+}

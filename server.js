@@ -133,7 +133,6 @@ app.get("/api/chat/history", async (req, res) => {
 // =======================================================
 app.post("/chat", async (req, res) => {
     const userMessage = req.body.message || "";
-    // Force convert the string header into a standard Integer number here too!
     const userId = parseInt(req.headers['user-id'], 10);
     const lowerMessage = userMessage.toLowerCase();
 
@@ -142,39 +141,56 @@ app.post("/chat", async (req, res) => {
     }
 
     try {
-        // 1. Save User Message immediately to SQL (Now passing a clean integer ID)
+        // 1. Save User Message immediately to SQL (Passing clean integer ID)
         await db.execute(
             "INSERT INTO messages (user_id, sender, message) VALUES (?, 'user', ?)",
             [userId, userMessage]
         );
 
         let relevantContext = "";
-        const jsonPath = path.join(__dirname, 'knowledge_chunks.json');
 
-        // 2. Token Matching Engine for PDF Context Chunks
-        if (fs.existsSync(jsonPath)) {
-            const chunks = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-            const queryTokens = lowerMessage.split(/\s+/)
-                .filter(word => word.length > 3)
-                .map(word => word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ""));
+        // 2. TOKEN MATCHING ENGINE: RELATIONAL DATABASE LOOKUP
+        // Clean user query strings down to standalone semantic key tokens
+        const searchTokens = lowerMessage
+            .replace(/[^a-zA-Z\s]/g, ' ')
+            .split(/\s+/)
+            .filter(token => token.length > 3); // Exclude very short connective words
 
-            let scoredChunks = chunks.map(chunk => {
-                let score = 0;
-                const lowerChunk = chunk.toLowerCase();
-                queryTokens.forEach(token => {
-                    if (lowerChunk.includes(token)) score += 2;
-                });
-                return { chunk, score };
+        if (searchTokens.length > 0) {
+            // Dynamically construct SQL syntax blocks matching user input length
+            let queryConditions = searchTokens.map(() => `search_tokens LIKE ?`).join(' OR ');
+            let queryParams = searchTokens.map(token => `%${token}%`);
+
+            const sqlQuery = `SELECT section_heading, content_text FROM university_knowledge_base WHERE ${queryConditions} LIMIT 4`;
+            const [rows] = await db.execute(sqlQuery, queryParams);
+
+            // Accumulate rows into a single organized context string for Gemini
+            rows.forEach(row => {
+                relevantContext += `[Heading: ${row.section_heading}]\n${row.content_text}\n\n`;
             });
-
-            scoredChunks.sort((a, b) => b.score - a.score);
-            const topMatches = scoredChunks.filter(item => item.score > 0).slice(0, 3);
-            topMatches.forEach(item => { relevantContext += item.chunk + "\n\n"; });
-        } else {
-            console.warn("⚠️ Warning: knowledge_chunks.json missing!");
         }
 
-        // 3. Complete Prompt Matrix Setup
+        // 3. FALLBACK DECK: Check for text file chunks if MySQL returns nothing
+        if (!relevantContext.trim()) {
+            const jsonPath = path.join(__dirname, 'knowledge_chunks.json');
+            if (fs.existsSync(jsonPath)) {
+                const chunks = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+                let scoredChunks = chunks.map(chunk => {
+                    let score = 0;
+                    const lowerChunk = chunk.toLowerCase();
+                    searchTokens.forEach(token => {
+                        if (lowerChunk.includes(token)) score += 2;
+                    });
+                    return { chunk, score };
+                });
+
+                scoredChunks.sort((a, b) => b.score - a.score);
+                const topMatches = scoredChunks.filter(item => item.score > 0).slice(0, 2);
+                topMatches.forEach(item => { relevantContext += item.chunk + "\n\n"; });
+            }
+        }
+
+        // 4. Complete Prompt Matrix Setup
         const prompt = `
         You are UB Guide AI, an authentic, supportive, and knowledgeable campus assistant for students at the University of Buea (UB). 
         You speak like an encouraging, helpful peer—grounded, smart, and approachable, not like a rigid corporate machine.
@@ -194,15 +210,15 @@ app.post("/chat", async (req, res) => {
         - Be encouraging, offer practical peer-to-peer advice, and keep the tone warm.
 
         OFFICIAL HANDBOOK CONTEXT:
-        ${relevantContext ? relevantContext : ""}
+        ${relevantContext ? relevantContext.trim() : "No handbook data matches this query."}
 
-        STUDIN INQUIRY:
+        STUDENT INQUIRY:
         "${userMessage}"
 
         UB GUIDE RESPONSE:
         `;
 
-        // 4. Fire prompt to Gemini API
+        // 5. Fire prompt to Gemini API
         const response = await axios.post(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${process.env.GEMINI_API_KEY}`,
             { contents: [{ parts: [{ text: prompt }] }] }
@@ -210,7 +226,7 @@ app.post("/chat", async (req, res) => {
 
         const botReply = response.data.candidates[0].content.parts[0].text;
 
-        // 5. Save Bot Response directly to SQL
+        // 6. Save Bot Response directly to SQL
         await db.execute(
             "INSERT INTO messages (user_id, sender, message) VALUES (?, 'bot', ?)",
             [userId, botReply]

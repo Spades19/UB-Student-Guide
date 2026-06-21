@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style-login.css">
+    <title>UB Guide Admin</title>
+</head>
+
+<body>
+    <div class="admin-shell">
+        <header class="admin-header">
+            <div>
+                <h1>UB Guide Admin</h1>
+                <p>Manage knowledge, review unanswered questions, and monitor chatbot usage.</p>
+            </div>
+            <a class="admin-link" href="index.html">Back to Chat</a>
+        </header>
+
+        <section class="analytics-grid" id="analyticsGrid">
+            <div class="analytics-card"><span>Total Users</span><strong id="totalUsers">0</strong></div>
+            <div class="analytics-card"><span>Messages</span><strong id="totalMessages">0</strong></div>
+            <div class="analytics-card"><span>Sessions</span><strong id="totalSessions">0</strong></div>
+            <div class="analytics-card"><span>Open Gaps</span><strong id="openUnanswered">0</strong></div>
+            <div class="analytics-card"><span>Helpful</span><strong id="helpfulCount">0</strong></div>
+            <div class="analytics-card"><span>Not Helpful</span><strong id="notHelpfulCount">0</strong></div>
+        </section>
+
+        <section class="admin-layout">
+            <div class="admin-panel">
+                <h2>Knowledge Base</h2>
+                <form id="knowledgeForm" class="admin-form">
+                    <input type="hidden" id="knowledgeId">
+                    <label>
+                        Category
+                        <input type="text" id="knowledgeCategory" placeholder="Admissions, Exams, Fees">
+                    </label>
+                    <label>
+                        Source URL
+                        <input type="text" id="knowledgeSource" placeholder="handbook://registration">
+                    </label>
+                    <label>
+                        Heading
+                        <input type="text" id="knowledgeHeading" placeholder="Registration Procedure" required>
+                    </label>
+                    <label>
+                        Content
+                        <textarea id="knowledgeContent" rows="7" placeholder="Enter official UB information..." required></textarea>
+                    </label>
+                    <div class="admin-actions">
+                        <button type="submit">Save Entry</button>
+                        <button type="button" id="resetKnowledgeForm">Clear</button>
+                    </div>
+                </form>
+                <div id="knowledgeList" class="admin-list"></div>
+            </div>
+
+            <div class="admin-panel">
+                <h2>Unanswered Questions</h2>
+                <div id="unansweredList" class="admin-list"></div>
+
+                <h2>Recent Student Questions</h2>
+                <div id="recentQuestionsList" class="admin-list compact-list"></div>
+            </div>
+        </section>
+    </div>
+
+    <script src="admin.js?v=1.0.0"></script>
+</body>
+
+</html>

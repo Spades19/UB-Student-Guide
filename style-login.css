@@ -261,6 +261,15 @@ body {
     background-color: var(--ub-blue-hover);
 }
 
+.secondary-auth-btn {
+    background-color: #64748b;
+    margin: 0 0 14px 0;
+}
+
+.secondary-auth-btn:hover {
+    background-color: #475569;
+}
+
 /* ==========================================
    6. CHAT WINDOW & GEMINI INPUT FIELD
    ========================================== */
@@ -442,17 +451,16 @@ body {
 }
 
 .history-item-block {
-    background: rgba(255, 255, 255, 0.05);
-    /* Soft background block */
-    border-left: 4px solid #007bff;
-    /* Primary tracking bar tint */
+    background: var(--bg-card);
+    border: 1px solid var(--border-input);
+    border-left: 4px solid var(--ub-accent);
     border-radius: 4px;
     padding: 12px;
     transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .history-item-block:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(2, 132, 199, 0.08);
     transform: translateX(2px);
 }
 
@@ -461,7 +469,8 @@ body {
     justify-content: space-between;
     font-size: 0.85rem;
     margin-bottom: 6px;
-    color: #b0b3b8;
+    color: var(--text-main);
+    opacity: 0.75;
 }
 
 .history-speaker {
@@ -479,7 +488,278 @@ body {
 .history-body-preview {
     font-size: 0.95rem;
     line-height: 1.4;
-    color: #e4e6eb;
+    color: var(--text-main);
     white-space: pre-wrap;
     /* Preserve text formatting rules */
+}
+
+.chat-header {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto 18px auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.chat-header h1 {
+    color: var(--ub-blue);
+    margin-bottom: 4px;
+}
+
+.chat-header p {
+    opacity: 0.75;
+}
+
+.dashboard-tab-panel {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dashboard-tab-panel h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: var(--text-sidebar);
+}
+
+.session-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.session-item {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-sidebar);
+    text-align: left;
+    cursor: pointer;
+}
+
+.session-item:hover,
+.session-item.active {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.source-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.source-chip {
+    display: inline-flex;
+    max-width: 100%;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: rgba(2, 132, 199, 0.12);
+    color: var(--ub-blue);
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+[data-theme="dark"] .source-chip {
+    color: #7dd3fc;
+}
+
+.feedback-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    align-items: center;
+}
+
+.feedback-actions button {
+    border: 1px solid var(--border-input);
+    background: var(--bg-card);
+    color: var(--text-main);
+    border-radius: 6px;
+    padding: 6px 9px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.feedback-actions button:hover {
+    border-color: var(--ub-accent);
+}
+
+.feedback-status {
+    font-size: 12px;
+    opacity: 0.75;
+}
+
+.send-btn {
+    width: auto;
+    padding: 0 14px;
+}
+
+.admin-shell {
+    min-height: 100vh;
+    background: var(--bg-main);
+    color: var(--text-main);
+    padding: 28px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.admin-header h1 {
+    color: var(--ub-blue);
+    margin-bottom: 6px;
+}
+
+.admin-link {
+    background: var(--ub-blue);
+    color: #ffffff;
+    text-decoration: none;
+    padding: 10px 14px;
+    border-radius: 6px;
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.analytics-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.analytics-card span {
+    display: block;
+    font-size: 13px;
+    opacity: 0.7;
+    margin-bottom: 8px;
+}
+
+.analytics-card strong {
+    font-size: 28px;
+    color: var(--ub-blue);
+}
+
+.admin-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
+    gap: 18px;
+}
+
+.admin-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    padding: 18px;
+}
+
+.admin-panel h2 {
+    color: var(--ub-blue);
+    margin-bottom: 14px;
+}
+
+.admin-form {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.admin-form label {
+    display: grid;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.admin-form input,
+.admin-form textarea {
+    width: 100%;
+    border: 1px solid var(--border-input);
+    border-radius: 6px;
+    background: var(--bg-main);
+    color: var(--text-main);
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-actions button {
+    border: none;
+    background: var(--ub-blue);
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.admin-actions button:nth-child(2) {
+    background: #64748b;
+}
+
+.admin-list {
+    display: grid;
+    gap: 10px;
+    max-height: 620px;
+    overflow-y: auto;
+}
+
+.admin-list-item {
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    padding: 12px;
+    background: var(--bg-main);
+}
+
+.admin-list-item h3 {
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+
+.admin-meta {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 8px;
+}
+
+.compact-list {
+    max-height: 280px;
+}
+
+@media (max-width: 1000px) {
+    .analytics-grid,
+    .admin-layout {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .analytics-grid,
+    .admin-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-header {
+        flex-direction: column;
+    }
 }

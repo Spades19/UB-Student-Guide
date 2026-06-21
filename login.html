@@ -34,6 +34,7 @@
             <div class="auth-tabs">
                 <button id="loginTab" class="tab-btn active">Login</button>
                 <button id="registerTab" class="tab-btn">Register</button>
+                <button id="resetTab" class="tab-btn">Reset</button>
             </div>
 
             <form id="loginForm" class="auth-form">
@@ -82,9 +83,44 @@
 
                 <button type="submit" class="auth-submit-btn">Register</button>
             </form>
+
+            <form id="resetForm" class="auth-form hidden">
+                <h2>Reset Password</h2>
+                <p>Request a short-lived reset code, then use it to create a new password.</p>
+
+                <div class="form-group">
+                    <label for="resetEmail">Account Email</label>
+                    <input type="email" id="resetEmail" placeholder="student@ubuea.cm" required>
+                </div>
+
+                <button type="button" id="requestResetCodeBtn" class="auth-submit-btn secondary-auth-btn">Request Reset Code</button>
+
+                <div class="form-group">
+                    <label for="resetCode">Reset Code</label>
+                    <input type="text" id="resetCode" placeholder="6-digit code" inputmode="numeric" minlength="6" maxlength="6" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="resetPassword">New Password</label>
+                    <input type="password" id="resetPassword" placeholder="Minimum 6 characters" minlength="6" required>
+                    <label class="peek-password">
+                        <input type="checkbox" onclick="togglePasswordVisibility('resetPassword')"> Show Password
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmResetPassword">Confirm New Password</label>
+                    <input type="password" id="confirmResetPassword" placeholder="Repeat new password" minlength="6" required>
+                    <label class="peek-password">
+                        <input type="checkbox" onclick="togglePasswordVisibility('confirmResetPassword')"> Show Password
+                    </label>
+                </div>
+
+                <button type="submit" class="auth-submit-btn">Update Password</button>
+            </form>
         </div>
     </div>
-    <script src="script-login.js?v=1.0.1"></script>
+    <script src="script-login.js?v=1.0.4"></script>
 </body>
 
 </html>

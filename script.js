@@ -1,219 +1,309 @@
-// 1. SELECT ALL CORE DOM ELEMENTS
-const sidebar = document.getElementById('sidebar');
-const toggleBtn = document.getElementById('toggleBtn');
-const themeToggle = document.getElementById('themeToggle');
-const textarea = document.getElementById('chatInput');
-const sendBtn = document.getElementById('sendBtn');
-const messageDisplay = document.getElementById('messageDisplay');
+const sidebar = document.getElementById("sidebar");
+const toggleBtn = document.getElementById("toggleBtn");
+const themeToggle = document.getElementById("themeToggle");
+const textarea = document.getElementById("chatInput");
+const sendBtn = document.getElementById("sendBtn");
+const messageDisplay = document.getElementById("messageDisplay");
+const historyLogsList = document.getElementById("historyLogsList");
+const sessionList = document.getElementById("sessionList");
+const newSessionBtn = document.getElementById("newSessionBtn");
+const historyNav = document.getElementById("historyNav");
+const activeSessionLabel = document.getElementById("activeSessionLabel");
+const logoutBtn = document.getElementById("logoutBtn");
+const adminNavLink = document.querySelector('a[href="admin.html"]');
 
-// Authentication Form Elements
-const loginForm = document.getElementById('loginForm');
-const registerForm = document.getElementById('registerForm');
-const loginTab = document.querySelector('.tab-btn[data-tab="login"]');
-
-// Backend Route Endpoints
 const BACKEND_URL = "http://localhost:5000/chat";
-const LOGIN_URL = "http://localhost:5000/login";
-const REGISTER_URL = "http://localhost:5000/register";
+const HISTORY_URL = "http://localhost:5000/api/chat/history";
+const SESSIONS_URL = "http://localhost:5000/api/chat/sessions";
+const FEEDBACK_URL = "http://localhost:5000/api/feedback";
 
-// =======================================================
-// SESSION CONTROL & ROUTE PROTECTION
-// =======================================================
-document.addEventListener("DOMContentLoaded", () => {
+let currentSessionId = localStorage.getItem("activeSessionId") || "";
+
+function getSessionHeaders(includeJson = false) {
+    const headers = {
+        "Authorization": `Bearer ${localStorage.getItem("studentToken") || ""}`,
+        "user-id": (localStorage.getItem("studentId") || "").toString()
+    };
+
+    if (includeJson) {
+        headers["Content-Type"] = "application/json";
+    }
+
+    return headers;
+}
+
+function requireValidSession() {
     const token = localStorage.getItem("studentToken");
-    const studentName = localStorage.getItem("studentName");
-    const currentPage = window.location.pathname.split("/").pop();
+    const studentId = localStorage.getItem("studentId");
 
-    // Protect the chat page from unauthorized access
-    if (!token && (currentPage === "index.html" || currentPage === "")) {
-        if (textarea) {
-            alert("Access Denied. Please log in with your student credentials first.");
-            window.location.href = "login.html";
-            return;
-        }
+    if (!token || !studentId || studentId === "undefined" || studentId === "null") {
+        alert("Please log in again so your conversations can be saved correctly.");
+        localStorage.clear();
+        window.location.href = "login.html";
+        return false;
     }
 
-    // Update profile display names if present
-    const usernameDisplay = document.getElementById("usernameDisplay");
-    if (usernameDisplay && studentName) {
-        usernameDisplay.textContent = studentName;
-    }
-});
+    return true;
+}
 
-// =======================================================
-// AUTHENTICATION INTERACTIVE CONTROLLERS
-// =======================================================
+function formatHistoryTime(dateValue) {
+    if (!dateValue) return "";
 
-// Register Form Handler
-if (registerForm) {
-    registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return "";
 
-        const name = document.getElementById('regName').value;
-        const email = document.getElementById('regEmail').value;
-        const password = document.getElementById('regPassword').value;
-
-        try {
-            const response = await fetch(REGISTER_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, email, password })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                alert(data.message || "Registration successful! Proceeding to Sign In.");
-                registerForm.reset();
-                if (loginTab) loginTab.click();
-            } else {
-                alert(data.error || "Registration process failed.");
-            }
-        } catch (error) {
-            console.error("Registration Request Error:", error);
-            alert("Could not reach the authentication server.");
-        }
+    return date.toLocaleString([], {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
     });
 }
 
-// Login Form Handler
-if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-
-        try {
-            const response = await fetch(LOGIN_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                alert(`Welcome back, ${data.user?.name || 'Student'}!`);
-
-                // 🕵️‍♂️ BULLETPROOF ID DETECTION
-                // We will check every single common way a backend sends back a user ID
-                let extractedId = null;
-
-                if (data.user) {
-                    extractedId = data.user.id || data.user.userId || data.user._id || data.user.studentId;
-                } else {
-                    extractedId = data.id || data.userId || data.studentId;
-                }
-
-                // If we STILL can't find it, we will fallback to a temporary mock ID 
-                // so your chat function doesn't crash while you work on the backend!
-                if (!extractedId) {
-                    console.warn("Backend didn't send a clear ID structure. Using session fallback.");
-                    extractedId = "temp_session_1";
-                }
-
-                // Store all returned session fields explicitly
-                localStorage.setItem("studentToken", data.token || "mock_token");
-                localStorage.setItem("studentId", extractedId);
-                localStorage.setItem("studentName", data.user?.name || "Student");
-                localStorage.setItem("studentEmail", data.user?.email || "");
-
-                // Redirect to the main workspace
-                window.location.href = "index.html";
-            } else {
-                alert(data.error || "Authentication credentials invalid.");
-            }
-        } catch (error) {
-            console.error("Login Request Error:", error);
-            alert("Could not reach the server. Make sure your backend application is active.");
-        }
-    });
+function clearChatWindow() {
+    if (!messageDisplay) return;
+    messageDisplay.innerHTML = "";
 }
 
-// =======================================================
-// SIDEBAR, THEME & LAYOUT CONTROLLERS
-// =======================================================
-if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
+function renderSources(container, sources) {
+    if (!sources || sources.length === 0) return;
+
+    const sourceWrap = document.createElement("div");
+    sourceWrap.className = "source-list";
+
+    sources.forEach((source) => {
+        const sourceItem = document.createElement("span");
+        sourceItem.className = "source-chip";
+        sourceItem.textContent = `${source.category || "Source"}: ${source.heading || "Knowledge base"}`;
+        sourceWrap.appendChild(sourceItem);
     });
+
+    container.appendChild(sourceWrap);
 }
 
-if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        if (currentTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'light');
-            themeToggle.textContent = '🌙 Dark';
-        } else {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            themeToggle.textContent = '☀️ Light';
-        }
-    });
+function renderFeedback(container, messageId) {
+    if (!messageId) return;
+
+    const feedbackWrap = document.createElement("div");
+    feedbackWrap.className = "feedback-actions";
+
+    const helpfulBtn = document.createElement("button");
+    helpfulBtn.type = "button";
+    helpfulBtn.textContent = "Helpful";
+    helpfulBtn.addEventListener("click", () => submitFeedback(messageId, "helpful", feedbackWrap));
+
+    const notHelpfulBtn = document.createElement("button");
+    notHelpfulBtn.type = "button";
+    notHelpfulBtn.textContent = "Not helpful";
+    notHelpfulBtn.addEventListener("click", () => submitFeedback(messageId, "not_helpful", feedbackWrap));
+
+    feedbackWrap.appendChild(helpfulBtn);
+    feedbackWrap.appendChild(notHelpfulBtn);
+    container.appendChild(feedbackWrap);
 }
 
-if (textarea) {
-    textarea.addEventListener('input', function () {
-        this.style.height = 'auto';
-        this.style.height = this.scrollHeight + 'px';
-    });
-}
-
-// =======================================================
-// SYSTEM LOGOUT INTERACTION CONTROLLER
-// =======================================================
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-        if (confirm("Are you sure you want to sign out?")) {
-            localStorage.clear();
-            window.location.href = "login.html";
-        }
-    });
-}
-
-// =======================================================
-// MAIN LIVE CHAT SYSTEM
-// =======================================================
-function appendMessage(text, sender) {
+function appendMessage(text, sender, options = {}) {
     if (!messageDisplay) return;
 
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message', `${sender}-message`);
-    messageDiv.textContent = text;
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("message", `${sender}-message`);
+
+    const messageText = document.createElement("div");
+    messageText.textContent = text;
+    messageDiv.appendChild(messageText);
+
+    if (sender === "bot") {
+        renderSources(messageDiv, options.sources);
+        renderFeedback(messageDiv, options.messageId);
+    }
 
     messageDisplay.appendChild(messageDiv);
     messageDisplay.scrollTop = messageDisplay.scrollHeight;
 }
 
+async function submitFeedback(messageId, rating, feedbackWrap) {
+    if (!requireValidSession()) return;
+
+    try {
+        const response = await fetch(FEEDBACK_URL, {
+            method: "POST",
+            headers: getSessionHeaders(true),
+            body: JSON.stringify({ messageId, rating })
+        });
+
+        const data = await response.json();
+        feedbackWrap.innerHTML = "";
+        const status = document.createElement("span");
+        status.className = "feedback-status";
+        status.textContent = response.ok ? "Feedback saved" : (data.error || "Feedback failed");
+        feedbackWrap.appendChild(status);
+    } catch (error) {
+        console.error("Feedback Error:", error);
+        feedbackWrap.innerHTML = '<span class="feedback-status">Could not save feedback</span>';
+    }
+}
+
+function parseSources(rawSources) {
+    if (!rawSources) return [];
+    if (Array.isArray(rawSources)) return rawSources;
+
+    try {
+        return JSON.parse(rawSources);
+    } catch (error) {
+        return [];
+    }
+}
+
+function renderHistory(history) {
+    if (!historyLogsList) return;
+
+    historyLogsList.innerHTML = "";
+
+    if (!history || history.length === 0) {
+        historyLogsList.innerHTML = '<p class="loading-text">No saved messages yet.</p>';
+        return;
+    }
+
+    history.slice(-20).forEach((item) => {
+        const historyBlock = document.createElement("div");
+        historyBlock.className = "history-item-block";
+
+        const meta = document.createElement("div");
+        meta.className = "history-meta";
+
+        const speaker = document.createElement("span");
+        speaker.className = `history-speaker ${item.sender === "user" ? "user-label" : "bot-label"}`;
+        speaker.textContent = item.sender === "user" ? "You" : "UB Guide";
+
+        const time = document.createElement("span");
+        time.textContent = formatHistoryTime(item.created_at);
+
+        const body = document.createElement("p");
+        body.className = "history-body-preview";
+        body.textContent = item.message;
+
+        meta.appendChild(speaker);
+        meta.appendChild(time);
+        historyBlock.appendChild(meta);
+        historyBlock.appendChild(body);
+        historyLogsList.appendChild(historyBlock);
+    });
+}
+
+function renderSessions(sessions) {
+    if (!sessionList) return;
+
+    sessionList.innerHTML = "";
+
+    if (!sessions || sessions.length === 0) {
+        sessionList.innerHTML = '<p class="loading-text">No conversations yet.</p>';
+        return;
+    }
+
+    sessions.forEach((session) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `session-item ${String(session.id) === String(currentSessionId) ? "active" : ""}`;
+        button.textContent = session.title || "Untitled conversation";
+        button.addEventListener("click", () => openSession(session.id, session.title));
+        sessionList.appendChild(button);
+    });
+}
+
+async function loadSessions() {
+    if (!sessionList || !requireValidSession()) return;
+
+    try {
+        const response = await fetch(SESSIONS_URL, {
+            method: "GET",
+            headers: getSessionHeaders()
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            renderSessions(data.sessions);
+        } else {
+            sessionList.innerHTML = `<p class="loading-text">${data.error || "Could not load sessions."}</p>`;
+        }
+    } catch (error) {
+        console.error("Session Fetch Error:", error);
+        sessionList.innerHTML = '<p class="loading-text">Could not reach the server.</p>';
+    }
+}
+
+async function loadChatHistory(sessionId = currentSessionId) {
+    if (!historyLogsList || !requireValidSession()) return;
+
+    const query = sessionId ? `?sessionId=${encodeURIComponent(sessionId)}` : "";
+    historyLogsList.innerHTML = '<p class="loading-text">Loading your recent conversations...</p>';
+
+    try {
+        const response = await fetch(`${HISTORY_URL}${query}`, {
+            method: "GET",
+            headers: getSessionHeaders()
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            renderHistory(data.history);
+            return data.history || [];
+        }
+
+        historyLogsList.innerHTML = `<p class="loading-text">${data.error || "Could not load chat history."}</p>`;
+        return [];
+    } catch (error) {
+        console.error("History Fetch Error:", error);
+        historyLogsList.innerHTML = '<p class="loading-text">Could not reach the server for chat history.</p>';
+        return [];
+    }
+}
+
+async function openSession(sessionId, title) {
+    currentSessionId = sessionId;
+    localStorage.setItem("activeSessionId", sessionId);
+
+    if (activeSessionLabel) {
+        activeSessionLabel.textContent = title || "Saved conversation";
+    }
+
+    clearChatWindow();
+    const history = await loadChatHistory(sessionId);
+    history.forEach((item) => {
+        appendMessage(item.message, item.sender, {
+            messageId: item.sender === "bot" ? item.id : null,
+            sources: parseSources(item.sources_json)
+        });
+    });
+    loadSessions();
+}
+
+function startNewSession() {
+    currentSessionId = "";
+    localStorage.removeItem("activeSessionId");
+
+    if (activeSessionLabel) {
+        activeSessionLabel.textContent = "Start a new student support conversation.";
+    }
+
+    clearChatWindow();
+    appendMessage("New chat started. What would you like to ask UB Guide?", "bot");
+    loadChatHistory("");
+    loadSessions();
+}
+
 async function sendMessage() {
-    if (!textarea || !messageDisplay) return;
+    if (!textarea || !messageDisplay || !requireValidSession()) return;
 
     const messageText = textarea.value.trim();
     if (!messageText) return;
 
-    // 🔄 FORCE FETCH FRESH CREDENTIALS RIGHT ON SEND ACTION
-    const studentId = localStorage.getItem("studentId");
-    const studentToken = localStorage.getItem("studentToken");
+    appendMessage(messageText, "user");
+    textarea.value = "";
+    textarea.style.height = "auto";
 
-    // Safety check: ensure identity exists locally before sending
-    if (!studentId || studentId === "undefined" || studentId === "null") {
-        alert("Session identity missing. Please log in again.");
-        window.location.href = "login.html";
-        return;
-    }
-
-    // Render client side bubble immediately
-    appendMessage(messageText, 'user');
-
-    // Clean textarea slate
-    textarea.value = '';
-    textarea.style.height = 'auto';
-
-    // Temporary typing indicator container
-    const loadingDiv = document.createElement('div');
-    loadingDiv.classList.add('message', 'bot-message');
+    const loadingDiv = document.createElement("div");
+    loadingDiv.classList.add("message", "bot-message");
     loadingDiv.textContent = "Typing...";
     messageDisplay.appendChild(loadingDiv);
     messageDisplay.scrollTop = messageDisplay.scrollHeight;
@@ -221,39 +311,103 @@ async function sendMessage() {
     try {
         const response = await fetch(BACKEND_URL, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${studentToken}`, // Good practice to include token authentication
-                "user-id": studentId.toString()           // Explicitly convert to string for safe network transmission
-            },
-            body: JSON.stringify({ message: messageText })
+            headers: getSessionHeaders(true),
+            body: JSON.stringify({
+                message: messageText,
+                sessionId: currentSessionId || null
+            })
         });
 
         const data = await response.json();
         loadingDiv.remove();
 
         if (response.ok) {
-            appendMessage(data.reply, 'bot');
+            currentSessionId = data.sessionId;
+            localStorage.setItem("activeSessionId", currentSessionId);
+            if (activeSessionLabel) {
+                activeSessionLabel.textContent = "Current conversation";
+            }
+            appendMessage(data.reply, "bot", {
+                messageId: data.messageId,
+                sources: data.sources
+            });
+            loadChatHistory(currentSessionId);
+            loadSessions();
         } else {
-            appendMessage(data.error || "Error: Couldn't complete response layout.", 'bot');
+            appendMessage(data.error || "Error: couldn't complete the response.", "bot");
         }
-
     } catch (error) {
         console.error("Fetch Error:", error);
         loadingDiv.remove();
-        appendMessage("Network error. Please make sure your server is running.", 'bot');
+        appendMessage("Network error. Please make sure your server is running.", "bot");
     }
 }
-// Chat Action Triggers
-if (sendBtn) {
-    sendBtn.addEventListener('click', sendMessage);
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (!requireValidSession()) return;
+
+    if (adminNavLink && localStorage.getItem("studentRole") !== "admin") {
+        adminNavLink.closest("li").style.display = "none";
+    }
+
+    loadSessions();
+    loadChatHistory(currentSessionId);
+
+    if (currentSessionId) {
+        openSession(currentSessionId, "Saved conversation");
+    }
+});
+
+if (toggleBtn && sidebar) {
+    toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("collapsed");
+    });
+}
+
+if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+        const currentTheme = document.documentElement.getAttribute("data-theme");
+        document.documentElement.setAttribute("data-theme", currentTheme === "dark" ? "light" : "dark");
+    });
+}
+
+if (newSessionBtn) {
+    newSessionBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        startNewSession();
+    });
+}
+
+if (historyNav) {
+    historyNav.addEventListener("click", (event) => {
+        event.preventDefault();
+        loadChatHistory(currentSessionId);
+    });
+}
+
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+        if (confirm("Are you sure you want to sign out?")) {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+    });
 }
 
 if (textarea) {
-    textarea.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
+    textarea.addEventListener("input", function () {
+        this.style.height = "auto";
+        this.style.height = this.scrollHeight + "px";
+    });
+
+    textarea.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
             sendMessage();
         }
     });
+}
+
+if (sendBtn) {
+    sendBtn.addEventListener("click", sendMessage);
 }

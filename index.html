@@ -6,66 +6,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style-login.css">
     <link rel="shortcut icon" href="/src/ub logo.jpg" type="image/x-icon">
-    <title>UB Student Assistant </title>
-
+    <title>UB Student Assistant</title>
 </head>
 
 <body>
     <div class="wrapper">
         <aside class="sidebar" id="sidebar">
-            <button class="toggle-btn" id="toggleBtn">☰</button>
+            <button class="toggle-btn" id="toggleBtn">Menu</button>
 
             <h2 class="sidebar-title">Dashboard</h2>
             <nav>
                 <ul>
-                    <li><a href="#">🏠 <span>Home</span></a></li>
-                    <li><a href="#">👤 <span>Profile</span></a></li>
-                    <li><a href="#">📈 <span>History</span></a><!-- Inside your history tab panel container -->
-                        <div id="historyTabContent" class="dashboard-tab-panel">
-                            <h3>Previous Conversations</h3>
-                            <div id="historyLogsList" class="history-logs-list">
-                                <!-- Saved messages will be dynamically injected here -->
-                                <p class="loading-text">Click to load your chat history...</p>
-                            </div>
-                        </div>
+                    <li><a href="index.html"><span>Home</span></a></li>
+                    <li><a href="#" id="newSessionBtn"><span>New Chat</span></a></li>
+                    <li><a href="#" id="historyNav"><span>History</span></a></li>
+                    <li><a href="admin.html"><span>Admin</span></a></li>
+                    <li>
+                        <p></p><button id="themeToggle" class="theme-btn">Mode</button>
                     </li>
-                    <li><a href="#">⚙️ <span>Settings</span>
-                            <ul><button id="themeToggle" class="theme-btn">🌙 Mode</button></ul>
-                        </a></li>
                 </ul>
+                <section class="dashboard-tab-panel">
+                    <h3>Conversation Sessions</h3>
+                    <div id="sessionList" class="session-list">
+                        <p class="loading-text">Loading sessions...</p>
+                    </div>
+                </section>
+                <section id="historyTabContent" class="dashboard-tab-panel">
+                    <h3>Recent Messages</h3>
+                    <div id="historyLogsList" class="history-logs-list">
+                        <p class="loading-text">Loading your chat history...</p>
+                    </div>
+                </section>
                 <div class="sidebar-footer">
                     <button id="logoutBtn" class="nav-btn logout-btn">
-                        <span>🚪 Logout</span>
+                        <span>Logout</span>
                     </button>
                 </div>
             </nav>
-
         </aside>
 
-
-
-
         <main class="main-content">
-            <h1>UB Guide</h1>
-            <p>Hi..How's your day going?</p>
+            <div class="chat-header">
+                <div>
+                    <h1>UB Guide</h1>
+                    <p id="activeSessionLabel">Start a new student support conversation.</p>
+                </div>
+            </div>
+
             <div class="chat-container">
                 <div class="message-display" id="messageDisplay">
                     <div class="message bot-message">Hello! I am your UB Guide AI. Ask me anything about registration,
-                        exams, or Molyko life!</div>
+                        exams, fees, or campus life.</div>
                 </div>
 
                 <div class="input-wrapper">
                     <textarea id="chatInput" placeholder="Ask UB Guide AI..." rows="1"></textarea>
 
                     <div class="input-actions">
-                        <button class="action-btn" title="Upload file">➕</button>
-                        <button id="sendBtn" class="send-btn" title="Send message">➔</button>
+                        <button class="action-btn" title="Upload file">+</button>
+                        <button id="sendBtn" class="send-btn" title="Send message">Send</button>
                     </div>
                 </div>
             </div>
+        </main>
+    </div>
 
-            <script src="script.js?v=1.0.1"></script>
+    <script src="script.js?v=1.0.3"></script>
 </body>
-
 
 </html>

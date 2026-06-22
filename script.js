@@ -12,10 +12,10 @@ const activeSessionLabel = document.getElementById("activeSessionLabel");
 const logoutBtn = document.getElementById("logoutBtn");
 const adminNavLink = document.querySelector('a[href="admin.html"]');
 
-const BACKEND_URL = "http://localhost:5000/chat";
-const HISTORY_URL = "http://localhost:5000/api/chat/history";
-const SESSIONS_URL = "http://localhost:5000/api/chat/sessions";
-const FEEDBACK_URL = "http://localhost:5000/api/feedback";
+const BACKEND_URL = "/chat";
+const HISTORY_URL = "/api/chat/history";
+const SESSIONS_URL = "/api/chat/sessions";
+const FEEDBACK_URL = "/api/feedback";
 
 let currentSessionId = localStorage.getItem("activeSessionId") || "";
 

@@ -4,10 +4,11 @@ const mysql = require('mysql2/promise');
 
 // 1. Configure your local University of Buea Backend Database Credentials
 const dbConfig = {
-    host: 'localhost',
-    user: 'root',      // Replace with your local MySQL username
-    password: '',      // Replace with your local MySQL password
-    database: 'ub_guide_db' // Replace with your active database name
+    host: process.env.DB_HOST || process.env.MYSQLHOST || 'localhost',
+    user: process.env.DB_USER || process.env.MYSQLUSER || 'root',
+    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || '',
+    database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'ub_guide_db',
+    port: Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306)
 };
 
 // 2. Helper function to tokenize text (mimicking your server-side parser logic)

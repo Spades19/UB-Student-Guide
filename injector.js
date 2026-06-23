@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');
 
-// 1. Configure your local University of Buea Backend Database Credentials
+// 1. Configure University of Buea Backend Database Credentials
 const dbConfig = {
     host: process.env.DB_HOST || process.env.MYSQLHOST || 'localhost',
     user: process.env.DB_USER || process.env.MYSQLUSER || 'root',
@@ -11,33 +11,22 @@ const dbConfig = {
     port: Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306)
 };
 
-// 2. Helper function to tokenize text (mimicking your server-side parser logic)
+// 2. Helper function to tokenize text
 function generateSearchTokens(text, heading) {
-    // Combine heading and text to maximize keyword discovery
     const combined = `${heading} ${text}`.toLowerCase();
-
-    // Remove punctuation, special characters, and numbers
     const cleanText = combined.replace(/[^a-zA-Z\s]/g, ' ');
-
-    // Split into distinct words
     const words = cleanText.split(/\s+/);
-
-    // Common conversational filler text/stopwords to strip out for optimization
     const stopWords = new Set([
         'the', 'is', 'at', 'which', 'on', 'and', 'a', 'an', 'to', 'in', 'for',
         'of', 'you', 'your', 'we', 'our', 'this', 'that', 'from', 'with', 'by'
     ]);
-
-    // Filter out filler words and short fragments, then isolate unique tokens
     const uniqueTokens = [...new Set(words.filter(word => word.length > 2 && !stopWords.has(word)))];
-
     return uniqueTokens.join(' ');
 }
 
 async function injectKnowledgeBase() {
     console.log('[!] Starting database injection pipeline...');
 
-    // Check if the scraper output file exists before proceeding
     const jsonPath = path.join(__dirname, 'ub_knowledge_base.json');
     if (!fs.existsSync(jsonPath)) {
         console.error(`[-] Source file missing at ${jsonPath}. Run scraper.js first!`);
@@ -47,21 +36,14 @@ async function injectKnowledgeBase() {
     const rawData = fs.readFileSync(jsonPath, 'utf8');
     const knowledgeData = JSON.parse(rawData);
 
-    // Connect to the localized MySQL database
-    //const connection = await mysql.createConnection(dbConfig);
-    //console.log('[✓] Connected to MySQL Server safely.');
-
-    const connection = mysql.createConnection({
-        host: process.env.MYSQLHOST || 'localhost',
-        user: process.env.MYSQLUSER,
-        password: process.env.MYSQLPASSWORD,
-        database: process.env.MYSQLDATABASE,
-        port: process.env.MYSQLPORT || 3306
-    });
-
+    let connection;
     let recordCount = 0;
 
     try {
+        // ADDED 'await' HERE to resolve the promise, and switched to your clean dbConfig object
+        connection = await mysql.createConnection(dbConfig);
+        console.log('[✓] Connected to MySQL Server safely.');
+
         // Clear previous records to avoid duplicate handbook entries during testing
         console.log('[!] Clearing old records from university_knowledge_base...');
         await connection.execute('TRUNCATE TABLE university_knowledge_base');
@@ -97,8 +79,11 @@ async function injectKnowledgeBase() {
     } catch (error) {
         console.error(`[-] Runtime Database Error: ${error.message}`);
     } finally {
-        await connection.end();
-        console.log('[!] Database connection closed cleanly.');
+        // Added an if-statement safety check to make sure connection exists before calling .end()
+        if (connection && typeof connection.end === 'function') {
+            await connection.end();
+            console.log('[!] Database connection closed cleanly.');
+        }
     }
 }
 

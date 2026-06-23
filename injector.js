@@ -48,8 +48,16 @@ async function injectKnowledgeBase() {
     const knowledgeData = JSON.parse(rawData);
 
     // Connect to the localized MySQL database
-    const connection = await mysql.createConnection(dbConfig);
-    console.log('[✓] Connected to MySQL Server safely.');
+    //const connection = await mysql.createConnection(dbConfig);
+    //console.log('[✓] Connected to MySQL Server safely.');
+
+    const connection = mysql.createConnection({
+        host: process.env.MYSQLHOST || 'localhost',
+        user: process.env.MYSQLUSER,
+        password: process.env.MYSQLPASSWORD,
+        database: process.env.MYSQLDATABASE,
+        port: process.env.MYSQLPORT || 3306
+    });
 
     let recordCount = 0;
 

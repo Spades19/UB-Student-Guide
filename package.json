@@ -4,9 +4,7 @@
     "description": "Backend server for UB Student Guide Chatbot",
     "main": "server.js",
     "scripts": {
-        "start": "node server.js",
-        "seed": "node injector.js",
-        "make-admin": "node make_admin.js"
+        "start": "node server.js"
     },
     "dependencies": {
         "axios": "^1.18.0",

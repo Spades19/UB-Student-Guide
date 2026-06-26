@@ -12,10 +12,10 @@ const resetForm = document.getElementById('resetForm');
 const requestResetCodeBtn = document.getElementById('requestResetCodeBtn');
 
 // Backend Route Endpoints
-const LOGIN_URL = "/login";
-const REGISTER_URL = "/register";
-const RESET_PASSWORD_URL = "/reset-password";
-const REQUEST_PASSWORD_RESET_URL = "/request-password-reset";
+const LOGIN_URL = "http://localhost:5000/login";
+const REGISTER_URL = "http://localhost:5000/register";
+const RESET_PASSWORD_URL = "http://localhost:5000/reset-password";
+const REQUEST_PASSWORD_RESET_URL = "http://localhost:5000/request-password-reset";
 
 // 1. INTERACTIVE TAB TOGGLE VIEW LOGIC
 function showAuthForm(activeTab, activeForm) {

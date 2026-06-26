@@ -10,7 +10,6 @@ const crypto = require("crypto");
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
@@ -20,11 +19,10 @@ app.use(express.static(__dirname));
 // MYSQL DATABASE CONNECTION POOL
 // ==========================================
 const db = mysql.createPool({
-    host: process.env.DB_HOST || process.env.MYSQLHOST || "localhost",
-    user: process.env.DB_USER || process.env.MYSQLUSER || "root",
-    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || "",
-    database: process.env.DB_NAME || process.env.MYSQLDATABASE || "ub_guide_db",
-    port: Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306),
+    host: process.env.DB_HOST || "localhost",
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "ub_guide_db",
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -57,30 +55,6 @@ async function addIndexIfMissing(tableName, indexDefinition) {
 
 async function ensureDatabaseTables() {
     try {
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(120) NOT NULL,
-                email VARCHAR(160) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
-                role VARCHAR(20) NOT NULL DEFAULT 'student',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS university_knowledge_base (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                category VARCHAR(120) NULL,
-                source_url VARCHAR(500) NULL,
-                section_heading VARCHAR(255) NULL,
-                content_text TEXT NOT NULL,
-                search_tokens TEXT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                INDEX idx_knowledge_heading (section_heading)
-            )
-        `);
-
         await db.execute(`
             CREATE TABLE IF NOT EXISTS messages (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -823,7 +797,6 @@ app.post("/chat", async (req, res) => {
         res.status(500).json({ error: "Something went wrong processing your campus guide request." });
     }
 });
-
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
+app.listen(5000, () => {
+    console.log("Server running on port 5000");
 });
